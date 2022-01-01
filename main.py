@@ -1,54 +1,25 @@
-import argparse, random, socket, sys
+import sys, pygame, threading
+from pygame.locals import QUIT
 
-if __name__ == '__main__':
-    user1 = int(input("請玩家1輸入：剪刀：（0）、石頭（1）布（2）"))
-    user2 = int(input("請玩家2輸入：剪刀：（0）、石頭（1）布（2）"))
+class background:
+    def __init__(self, W = 1200, H = 650):
+        self.width = W
+        self.height = H
+    def start(self):
+        self.screen = pygame.display.set_mode((self.width, self.height))
+        pygame.display.set_caption('Rock-Paper-Scissors!')
+        bg = pygame.image.load('./imgs/Bg.jpg')
+        self.screen.blit(bg, (0, 0))
+        pygame.display.update()
 
-    if user1 == user2:
-        if user1 == user2 == 1:
-            print("玩家1你輸入的為:剪刀(1)") 
-            print("玩家2你輸入的為:剪刀(1)") 
-        
-        elif user1 == user2 == 1: 
-            print("玩家1你輸入的為:石頭(1)") 
-            print("玩家2你輸入的為:石頭(1)") 
-        elif user1 == user2 == 2: 
-            print("玩家1你輸入的為:石頭(2)") 
-            print("玩家2你輸入的為:石頭(2)") 
-            print("玩家1玩家2平局哩") 
-
-    elif user1 == 0 and user2 == 1:
-        print("玩家1你的輸入為：剪刀（0）") 
-        print("玩家2你的輸入為：石頭 (1)") 
-        print("玩家1，你輸給了玩家2")        
-        print("玩家2，你贏了玩家1")    
-
-    elif user1 == 0 and user2 == 2:
-        print("玩家1你的輸入為：剪刀（0）") 
-        print("玩家2你的輸入為：布 (2)") 
-        print("玩家1，你贏了玩家2")        
-        print("玩家2，你輸給玩家1")   
-
-    elif user1 == 1 and user2 == 0:
-        print("玩家1你的輸入為：石頭（1）") 
-        print("玩家2你的輸入為：剪刀 (0)") 
-        print("玩家1，你贏了玩家2")        
-        print("玩家2，你輸給了玩家1")   
-
-    elif user1 == 1 and user2 == 2:
-        print("玩家1你的輸入為：石頭（1）") 
-        print("玩家2你的輸入為：布 (2)") 
-        print("玩家1，你輸給了玩家2")        
-        print("玩家2，你贏了玩家1")   
-
-    elif user1 == 2 and user2 == 0:
-        print("玩家1你的輸入為：布（2）") 
-        print("玩家2你的輸入為：剪刀 (0)") 
-        print("玩家1，你輸給了玩家2")        
-        print("玩家2，你贏了玩家1")  
-
-    elif user1 == 2 and user2 == 1:
-        print("玩家1你的輸入為：布（2）") 
-        print("玩家2你的輸入為：石頭 (1)") 
-        print("玩家1，你贏了玩家2")        
-        print("玩家2，你輸給玩家1")            
+if __name__ == '__main__': 
+    
+    pygame.init()
+    game = background()
+    game.start()
+    
+    while True:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
