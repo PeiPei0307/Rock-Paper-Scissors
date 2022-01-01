@@ -1,1 +1,1 @@
-# GuessingGame
+# Rock-Paper-Scissors
