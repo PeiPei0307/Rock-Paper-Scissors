@@ -1,19 +1,26 @@
-import socket
+import socket, os, threading
 
-def Server():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind(('127.0.0.1', 5000))
-    sock.listen(1)
-    print('Listening at', sock.getsockname())
-    while True:
-        print('Waiting to accept a new connection')
-        sc, sockname = sock.accept()
-        print('We have accepted a connection from', sockname)
-        print('  Socket name:', sc.getsockname())
-        print('  Socket peer:', sc.getpeername())
-        sc.close()
-        print('  Reply sent, socket closed')
-        
-if __name__ == '__main__':
-    Server()
+class Server(threading.Thread):
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.host = '127.0.0.1'
+        self.port = 5000
+
+    def run(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind((self.host, self.port))
+        self.sock.listen(1)
+        print('Listening at', self.sock.getsockname())
+        while True:
+            print('Waiting to accept a new connection')
+            sc, sockname = self.sock.accept()
+            print('We have accepted a connection from', sockname)
+            print('  Socket name:', sc.getsockname())
+            print('  Socket peer:', sc.getpeername())
+            sc.close()
+            print('  Reply sent, socket closed')
+
+    def stop(self):
+        self.sock.close()
+        os._exit(0)
