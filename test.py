@@ -1,6 +1,6 @@
 import argparse, socket, threading, time
 
-Test
+Test test
 
 def server_thread(sc, count):
     while True:
