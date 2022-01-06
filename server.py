@@ -18,8 +18,18 @@ class Server(threading.Thread):
             print('We have accepted a connection from', sockname)
             print('  Socket name:', sc.getsockname())
             print('  Socket peer:', sc.getpeername())
-            sc.close()
-            print('  Reply sent, socket closed')
+            self.talk(sc)
+            
+    def talk(self, sc):
+        while True:
+            data = sc.recv(1024)
+            print('  Client at ',  sc.getpeername(), ' message:', repr(data) ,)
+            message = 'Your data was {} bytes long'.format(len(data))
+            sc.sendall(message.encode('utf-8'))
+            if data == b"|exit|":
+                break
+        sc.close()
+        print('  Reply sent, socket closed')
 
     def stop(self):
         self.sock.close()

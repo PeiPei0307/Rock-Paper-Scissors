@@ -12,7 +12,13 @@ class Client(threading.Thread):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((self.host, int(self.port)))
         print('Client has been assigned socket name', sock.getsockname())
-        print('socket closed')
+        while True:
+            message = input(">>>")
+            sock.sendall(message.encode('utf-8'))
+            reply = sock.recv(1024)
+            print('The server said', repr(reply))
+            if message == "|exit|":
+                break
         sock.close()
 
     def stop(self):
