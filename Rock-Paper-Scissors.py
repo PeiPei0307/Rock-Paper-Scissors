@@ -1,43 +1,30 @@
+# __author__=="thomas"
+import pygame
+pygame.init()
+screen = pygame.display.set_mode((1200, 650))
+pygame.display.set_caption("顯示圖片")
+# 設置背景顏色
+screen.fill((255, 255, 255))
+# ============遊戲開始頁面靜態效果==========
+#1.加載圖片
+bg = pygame.image.load("C://Users//30544//Desktop//rrrr//bg.jpg")
+img3 = pygame.image.load("C://Users//30544//Desktop//rrrr//3.jpg") #橘色随便改路径#1是剪刀2是石头3是布
+img2 = pygame.image.load("C://Users//30544//Desktop//rrrr//2.jpg")
+img1 = pygame.image.load("C://Users//30544//Desktop//rrrr//1.jpg") 
 
 
-def RPSgame():
-    ServerPlayer = int(input("Input :"))
-    ClientPlayer = int(input("Input :"))
-
-    #Check draw
-    if ServerPlayer == ClientPlayer:
-        print("Draw")
-        return {'ServerPlayer': 'darw', 'ClientPlayer': 'darw'}
-
-    elif ServerPlayer == 0 and ClientPlayer == 1:
-        print("ServerPlayer input : Scissors") 
-        print("ServerPlayer input : Rock") 
-        return {'ServerPlayer': 'loss', 'ClientPlayer': 'win'}
-
-    elif ServerPlayer == 0 and ClientPlayer == 2:
-        print("ServerPlayer input : Scissors") 
-        print("ClientPlayer input : Paper") 
-        return {'ServerPlayer': 'win', 'ClientPlayer': 'loss'}
-
-    elif ServerPlayer == 1 and ClientPlayer == 0:
-        print("ServerPlayer input : Rock") 
-        print("ClientPlayer input : Scissors") 
-        return {'ServerPlayer': 'win', 'ClientPlayer': 'loss'}
-
-    elif ServerPlayer == 1 and ClientPlayer == 2:
-        print("ServerPlayer input : Rock") 
-        print("ClientPlayer input : Paper") 
-        return {'ServerPlayer': 'loss', 'ClientPlayer': 'win'}
-
-    elif ServerPlayer == 2 and ClientPlayer == 0:
-        print("ServerPlayer input : Paper") 
-        print("ClientPlayer input : Scissors") 
-        return {'ServerPlayer': 'loss', 'ClientPlayer': 'win'} 
-
-    elif ServerPlayer == 2 and ClientPlayer == 1:
-        print("ServerPlayer input : Paper") 
-        print("ClientPlayer input : Rock") 
-        return {'ServerPlayer': 'win', 'ClientPlayer': 'loss'}
-
-    else:
-        print("Error!In function game")
+#2.渲染圖片
+#blit(渲染對象，座標)
+screen.blit(bg, (0, 0))
+screen.blit(img3, (100, 250))
+screen.blit(img2, (400, 250))
+screen.blit(img1, (700, 250))
+#3.刷新顯示頁面
+#1.第一次刷新用它 pygame.display.flip()
+#2.不是第一次刷新
+pygame.display.update() #刷新
+flag = True
+while flag:
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT:
+			exit()
