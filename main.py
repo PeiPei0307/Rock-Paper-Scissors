@@ -19,6 +19,12 @@ def background(width, height):
                 pygame.quit()
                 os._exit(0)
 
+class Player1:
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.host = '127.0.0.1'
+        self.port = 5000
+
 if __name__ == '__main__': 
 
     choices = {'client': Client, 'server': Server} #Back-end connection test
@@ -29,4 +35,4 @@ if __name__ == '__main__':
     Bg = threading.Thread(target = background, args = (1200, 650))
     Bg.start()
     
-    #RPSgame()
+    RPSgame()
