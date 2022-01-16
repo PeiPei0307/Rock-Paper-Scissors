@@ -7,10 +7,10 @@ pygame.display.set_caption("顯示圖片")
 screen.fill((255, 255, 255))
 # ============遊戲開始頁面靜態效果==========
 #1.載入圖片
-bg = pygame.image.load("C://Users//30544//Desktop//rrrr//bg.jpg")
-img3 = pygame.image.load("C://Users//30544//Desktop//rrrr//3.jpg") #橘色随便改路径#1是剪刀2是石头3是布
-img2 = pygame.image.load("C://Users//30544//Desktop//rrrr//2.jpg")
-img1 = pygame.image.load("C://Users//30544//Desktop//rrrr//1.jpg") 
+bg = pygame.image.load('./imgs/Bg.jpg')
+img3 = pygame.image.load('./imgs/Scissors.png') #橘色随便改路径#1是剪刀2是石头3是布
+img2 = pygame.image.load('./imgs/Rock.png')
+img1 = pygame.image.load('./imgs/Paper.png') 
 
 
 #2.圖片位置
