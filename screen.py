@@ -97,7 +97,11 @@ class Player1:
 """
 
 if __name__ == '__main__': 
-
+    pygame.init()
+    pygame.mixer.init()
+    pygame.mixer.music.load('./sound/kv-beach.mp3')
+    pygame.mixer.music.play()
+    button_sound = pygame.mixer.Sound('./sound/bottle.wav')
     clock = pygame.time.Clock()
 
     background = BG()
@@ -133,6 +137,7 @@ if __name__ == '__main__':
 
         if button_clicked:
             screen.blit(text_clicked, text_rect)#如果按下按鈕顯示已按下
+            button_sound.play()
             pygame.display.flip()
             pygame.time.delay(100)
         else:
