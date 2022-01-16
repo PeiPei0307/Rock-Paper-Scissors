@@ -24,7 +24,7 @@ def main():
     inputtext_clicked = pygame.image.load('./imgs/Paper.png')
     text = pygame.transform.scale2x(inputtext)
     text_clicked = pygame.transform.scale2x(inputtext_clicked)
-    text_rect = text.get_rect(center=(width/2, height/2))
+    text_rect = screen.blit(text, (300, 300))
 
     # 開始跑程式迴圈
     while running:
