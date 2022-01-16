@@ -26,6 +26,7 @@ class Player1:
         self.port = 5000
 
 if __name__ == '__main__': 
+    
 
     choices = {'client': Client, 'server': Server} #Back-end connection test
     role = choices[input(">>>")]()

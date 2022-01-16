@@ -1,4 +1,4 @@
-import os, pygame, socket, threading, time
+import os, pygame, socket, threading, random
 from pygame.locals import QUIT
 from game import RPSgame
 from server import Server
@@ -15,22 +15,26 @@ class BG():
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption('Rock-Paper-Scissors!')
 
-    def background(self):
         self.bg = pygame.image.load('./imgs/Bg.jpg')
-        self.screen.blit(self.bg, (0, 0))
-        pygame.display.update()
-
-    def scissor(self):
+        self.img1 = pygame.image.load('./imgs/Rock.png')
+        self.img2 = pygame.image.load('./imgs/Paper.png')
         self.img3 = pygame.image.load('./imgs/Scissors.png')
-        self.screen.blit(self.img3, (100, 250))
+        self.img4 = pygame.image.load('./imgs/question/null.png')
 
-    def Big_scissor(self):
-        self.pon1 = pygame.transform.smoothscale(self.img3,(self.img3.get_width()*2, self.img3.get_height()*2))
-        self.screen.blit(self.pon1, (200, 250))
+    def background(self):
+        self.screen.blit(self.bg, (0, 0))
+
+    def Rock(self):
+        self.screen.blit(self.img1, (100, 250))
+
+    def Paper(self):
+        self.screen.blit(self.img2, (100, 250))
+
+    def Scissor(self):
+        self.screen.blit(self.img3, (100, 250))
 
     def null(self):
-        self.img3 = pygame.image.load('./imgs/question/null.png')
-        self.screen.blit(self.img3, (100, 250))
+        self.screen.blit(self.img4, (100, 250))
 
 
 class Player1:
@@ -46,18 +50,22 @@ if __name__ == '__main__':
     back = BG(1200, 650)
     back.background()
 
-    done = False
-    while not done:
+    done = True
+    while done:
         for event in pygame.event.get():
             if event.type == QUIT:
-                done = True
+                done = False
 
-        back.scissor()
-        time.sleep(1)
-        back.Big_scissor()
-        time.sleep(1)
         back.background()
 
-        pygame.display.flip()
+        test = random.randint(1,3)
+        if test == 1:
+            back.Scissor()
+        if test == 2:
+            back.Rock()
+        if test == 3:
+            back.Paper()
 
-        clock.tick(60)
+        pygame.display.flip()
+        clock.tick(15)
+    pygame.quit()
