@@ -19,8 +19,11 @@ def main():
 
     # Text
     font = pygame.font.SysFont("Arial", 35)#(字形/*可不填*/, 大小)
-    text = font.render("Button", True, color_text,(255,0,0))#(文字, 平滑值/*抗鋸齒*/, 字體顏色, 背景顏色)
-    text_clicked = font.render("Clicked", True, color_text,(0,0,255))
+
+    inputtext = pygame.image.load('./imgs/Rock.png')
+    inputtext_clicked = pygame.image.load('./imgs/Paper.png')
+    text = pygame.transform.scale2x(inputtext)
+    text_clicked = pygame.transform.scale2x(inputtext_clicked)
     text_rect = text.get_rect(center=(width/2, height/2))
 
     # 開始跑程式迴圈
