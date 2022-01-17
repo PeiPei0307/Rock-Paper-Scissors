@@ -54,15 +54,24 @@ class Player1(BG):
 class Button(Player1):
     def __init__(self):
         super().__init__()
-        self.Button_ken = pygame.transform.flip(self.img1, True, False)
-        self.Button_pon = pygame.transform.flip(self.img2, True, False)
-        self.Button_jan = pygame.transform.flip(self.img3, True, False)
+        self.Button_ken = pygame.image.load('./imgs/Rock_gb.png')
+        self.Button_pon = pygame.image.load('./imgs/Paper_gb.png')
+        self.Button_jan = pygame.image.load('./imgs/Scissors_gb.png')
+        self.Button_ken_click = pygame.image.load('./imgs/Rock_yb.png')
+        self.Button_pon_click = pygame.image.load('./imgs/Paper_yb.png')
+        self.Button_jan_click = pygame.image.load('./imgs/Scissors_yb.png')
     def ButtonRock(self):
-        self.screen.blit(self.Button_ken, (100, 350))
+        self.rock_rect = self.screen.blit(self.Button_ken, (100, 350))
+    def ButtonRockClick(self):
+        self.screen.blit(self.Button_ken_click, (100, 350))
     def ButtonPaper(self):
-        self.screen.blit(self.Button_pon, (100, 200))
+        self.paper_rect = self.screen.blit(self.Button_pon, (100, 200))
+    def ButtonPaperClick(self):
+        self.screen.blit(self.Button_pon_click, (100, 200))
     def ButtonScissor(self):
-        self.screen.blit(self.Button_jan, (100, 50))
+        self.scissor_rect = self.screen.blit(self.Button_jan, (100, 50))
+    def ButtonScissorClick(self):
+        self.scissor_rect = self.screen.blit(self.Button_jan_click, (100, 50))
 
 class Player2(BG):
     def __init__(self):
@@ -100,24 +109,20 @@ if __name__ == '__main__':
     pygame.init()
     pygame.mixer.init()
     pygame.mixer.music.load('./sound/kv-beach.mp3')
-    pygame.mixer.music.play()
+    pygame.mixer.music.play(-1)
     button_sound = pygame.mixer.Sound('./sound/bottle.wav')
     clock = pygame.time.Clock()
 
     background = BG()
     screen = background.screen #back scrren control to main
 
-    button_clicked = False#判斷按鈕是否被按下，預設為否
+    RockClicked = False 
+    PaperClicked = False 
+    ScissorClicked = False#判斷按鈕是否被按下，預設為否
 
     palyer1 = Player1()
     palyer2 = Player2() 
     button = Button()
-
-    inputtext = pygame.image.load('./imgs/Rock.png')
-    inputtext_clicked = pygame.image.load('./imgs/Paper.png')
-    text = pygame.transform.scale2x(inputtext)
-    text_clicked = pygame.transform.scale2x(inputtext_clicked)
-    text_rect = screen.blit(text, (300, 300))
 
     done = True
     while done:
@@ -126,23 +131,42 @@ if __name__ == '__main__':
                 pygame.quit()
                 os._exit(0)
             if event.type == pygame.MOUSEBUTTONDOWN:#當發生左鍵按下的事件
-                button_clicked = True if text_rect.collidepoint(event.pos) else False #collidepoint判斷是否重疊
+                RockClicked = True if RockRect.collidepoint(event.pos) else False #collidepoint判斷是否重疊
+                PaperClicked = True if PaperRect.collidepoint(event.pos) else False #collidepoint判斷是否重疊
+                ScissorClicked = True if ScissorRect.collidepoint(event.pos) else False #collidepoint判斷是否重疊
 
         background.background()
+
         palyer1.unknown()
         palyer2.unknown()
-        button.ButtonRock()
-        button.ButtonPaper()
-        button.ButtonScissor()
 
-        if button_clicked:
-            screen.blit(text_clicked, text_rect)#如果按下按鈕顯示已按下
+        button.ButtonRock() #buttons rect
+        RockRect = button.rock_rect
+        button.ButtonPaper()
+        PaperRect = button.paper_rect
+        button.ButtonScissor()
+        ScissorRect = button.scissor_rect
+
+        if RockClicked:
+            button.ButtonRockClick()#如果按下按鈕顯示已按下
             button_sound.play()
             pygame.display.flip()
-            pygame.time.delay(100)
-        else:
-            screen.blit(text, text_rect)#否則顯示"button"
-        button_clicked = False#重新將按鈕設定為未按下
+            pygame.time.delay(150)
+            RockClicked = False#重新將按鈕設定為未按下
+
+        if PaperClicked:
+            button.ButtonPaperClick()
+            button_sound.play()
+            pygame.display.flip()
+            pygame.time.delay(150)
+            PaperClicked = False
+
+        if ScissorClicked:
+            button.ButtonScissorClick()
+            button_sound.play()
+            pygame.display.flip()
+            pygame.time.delay(150)
+            ScissorClicked = False
 
 
         pygame.display.flip()
