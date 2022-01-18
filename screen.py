@@ -54,6 +54,7 @@ class Player1(BG):
 class Button(Player1):
     def __init__(self):
         super().__init__()
+        self.button_sound = pygame.mixer.Sound('./sound/bottle.wav')
         self.Button_ken = pygame.image.load('./imgs/Rock_gb.png')
         self.Button_pon = pygame.image.load('./imgs/Paper_gb.png')
         self.Button_jan = pygame.image.load('./imgs/Scissors_gb.png')
@@ -110,7 +111,6 @@ if __name__ == '__main__':
     pygame.mixer.init()
     pygame.mixer.music.load('./sound/kv-beach.mp3')
     pygame.mixer.music.play(-1)
-    button_sound = pygame.mixer.Sound('./sound/bottle.wav')
     clock = pygame.time.Clock()
 
     background = BG()
@@ -149,21 +149,21 @@ if __name__ == '__main__':
 
         if RockClicked:
             button.ButtonRockClick()#如果按下按鈕顯示已按下
-            button_sound.play()
+            button.button_sound.play()
             pygame.display.flip()
             pygame.time.delay(150)
             RockClicked = False#重新將按鈕設定為未按下
 
         if PaperClicked:
             button.ButtonPaperClick()
-            button_sound.play()
+            button.button_sound.play()
             pygame.display.flip()
             pygame.time.delay(150)
             PaperClicked = False
 
         if ScissorClicked:
             button.ButtonScissorClick()
-            button_sound.play()
+            button.button_sound.play()
             pygame.display.flip()
             pygame.time.delay(150)
             ScissorClicked = False
