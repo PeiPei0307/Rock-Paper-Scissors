@@ -1,8 +1,9 @@
-import argparse, socket, time, threading
+import argparse, socket, time, threading, json
 
 class Client:
     def __init__(self):
         self.recvdata = None
+        self.control = False
     
     def connect(self, address, cause_error=False):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,16 +19,25 @@ class Client:
 
         while True:
             time.sleep(1)
-            sock.sendall(b'{"Datatype":"Gamestate", "State":"Waitingpunch" }')
+            if self.control == False:
+                sock.sendall(b'''{"Role":"Client", "State":"Waitingpunch"}''')
+            else:
+                sock.sendall(b'''{"Role":"Client", "State":"Rock"}''')
 
     def recv_data(self, sock):
         while True:
-            self.recv_until(sock, b'}')
+            self.recvdata = self.recv_until(sock, b'}')
+            data = json.loads(self.recvdata)
+            if data["Stage"] != "Result":
+                pass
+            else:
+                self.control = False
+
 
     def printdata(self):
         while True:
             if self.recvdata:
-                print('Server recv : ', self.recvdata)
+                print('ServerRecv : ', self.recvdata)
                 self.recvdata = None
 
     def recv_until(self, sock, suffix):
@@ -39,7 +49,7 @@ class Client:
             if not data:
                 raise IOError('received {!r} then socket closed'.format(message))
             message += data
-        self.recvdata =  message
+        return message.decode("utf-8")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Example client')
