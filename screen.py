@@ -1,3 +1,4 @@
+from multiprocessing.connection import wait
 import os, pygame, socket, threading, random
 from pygame.locals import QUIT
 from game import RPSgame
@@ -21,9 +22,33 @@ class BG():
         self.chiose_ken = pygame.transform.scale2x(self.img1)
         self.chiose_pon = pygame.transform.scale2x(self.img2)
         self.chiose_jan = pygame.transform.scale2x(self.img3)
+        self.font = pygame.font.SysFont('Comic Sans MS', 50, bold = True, italic = True)
+        self.sfont = pygame.font.SysFont('Comic Sans MS', 25, bold = True, italic = True)
+        self.period = 0
 
     def background(self):
         self.screen.blit(self.bg, (0, 0))
+
+    def WaitingP2(self):
+        if self.period > 3:
+            self.period = 0
+        text = 'Waiting player2' + '.' * self.period
+        self.period += 1
+        textsurface = self.font.render(text, False, (240, 85, 85))
+        screen.blit(textsurface,(390, 25))
+
+    def P2Join(self):
+        if self.period > 3:
+            self.period = 0
+        text = 'Player2 join game' + '.' * self.period
+        self.period += 1
+        textsurface = self.font.render(text, False, (240, 85, 85))
+        screen.blit(textsurface,(390, 25))
+
+    def Startgame(self):
+        text = 'Start Game'
+        textsurface = self.sfont.render(text, False, (240, 85, 85))
+        screen.blit(textsurface,(800, 25))
 
 class Player1(BG):
     def __init__(self):
@@ -79,12 +104,15 @@ class Button(Player1):
     def __init__(self):
         super().__init__()
         self.button_sound = pygame.mixer.Sound('./sound/bottle.wav')
+        self.Button_start = pygame.image.load('./imgs/Start_gb.png')
         self.Button_ken = pygame.image.load('./imgs/Rock_gb.png')
         self.Button_pon = pygame.image.load('./imgs/Paper_gb.png')
         self.Button_jan = pygame.image.load('./imgs/Scissors_gb.png')
         self.Button_ken_click = pygame.image.load('./imgs/Rock_yb.png')
         self.Button_pon_click = pygame.image.load('./imgs/Paper_yb.png')
         self.Button_jan_click = pygame.image.load('./imgs/Scissors_yb.png')
+    def ButtonStart(self):
+        self.start_rect = self.screen.blit(self.Button_start, (900, 200))
     def ButtonRock(self):
         self.rock_rect = self.screen.blit(self.Button_ken, (100, 350))
     def ButtonRockClick(self):
@@ -102,7 +130,7 @@ if __name__ == '__main__':
     pygame.init()
     pygame.mixer.init()
     pygame.mixer.music.load('./sound/kv-beach.mp3')
-    pygame.mixer.music.play(-1)
+    #pygame.mixer.music.play(-1)
     clock = pygame.time.Clock()
 
     background = BG()
@@ -111,23 +139,15 @@ if __name__ == '__main__':
     RockClicked = False 
     PaperClicked = False 
     ScissorClicked = False#判斷按鈕是否被按下，預設為否
+    StartClicked = False
 
     player1 = Player1()
     player2 = Player2() 
     button = Button()
 
     Pc = Client("127.0.0.1", 1060)
-    connect = threading.Thread(target = Pc.connect)
+    connect = threading.Thread(target = Pc.connect) #Start client do connect
     connect.start()
-
-    """
-    if callback["State"] == "Rock":
-        palyer1.chiose_ken()
-    if callback["State"] == "Scissors":
-        palyer1.chiose_jan()
-    if callback["State"] == "Paper":
-        palyer1.chiose_pon()
-    """
 
     done = True
     while done:
@@ -136,44 +156,56 @@ if __name__ == '__main__':
                 pygame.quit()
                 os._exit(0)
             if event.type == pygame.MOUSEBUTTONDOWN:#當發生左鍵按下的事件
-                RockClicked = True if RockRect.collidepoint(event.pos) else False #collidepoint判斷是否重疊
-                PaperClicked = True if PaperRect.collidepoint(event.pos) else False #collidepoint判斷是否重疊
-                ScissorClicked = True if ScissorRect.collidepoint(event.pos) else False #collidepoint判斷是否重疊
+                if Pc.recvdata["State"] == "P2Join":
+                    StartClicked = True if StartRect.collidepoint(event.pos) else False
+                    RockClicked = True if RockRect.collidepoint(event.pos) else False #collidepoint判斷是否重疊
+                    PaperClicked = True if PaperRect.collidepoint(event.pos) else False 
+                    ScissorClicked = True if ScissorRect.collidepoint(event.pos) else False
 
         background.background()
 
-        if Pc.recvdata != None:
-            player1.state = Pc.recvdata["State"]
-
-        player1.Chiose()
-
+        #print(Pc.recvdata["State"])
         button.ButtonRock() #buttons rect
         RockRect = button.rock_rect
         button.ButtonPaper()
         PaperRect = button.paper_rect
         button.ButtonScissor()
         ScissorRect = button.scissor_rect
+        button.ButtonStart()
+        StartRect = button.start_rect
 
-        if RockClicked:
-            button.ButtonRockClick()#如果按下按鈕顯示已按下
-            button.button_sound.play()
-            pygame.display.flip()
-            pygame.time.delay(150)
-            RockClicked = False#重新將按鈕設定為未按下
+        if Pc.recvdata["State"] == "WaitP2":
+            background.WaitingP2()
 
-        if PaperClicked:
-            button.ButtonPaperClick()
-            button.button_sound.play()
-            pygame.display.flip()
-            pygame.time.delay(150)
-            PaperClicked = False
+        if Pc.recvdata["State"] == "P2Join":
+            background.P2Join()
+            #background.Startgame()
+            if StartClicked:
+                button.button_sound.play()
+                pygame.display.flip()
 
-        if ScissorClicked:
-            button.ButtonScissorClick()
-            button.button_sound.play()
-            pygame.display.flip()
-            pygame.time.delay(150)
-            ScissorClicked = False
+            if RockClicked:
+                button.ButtonRockClick()#如果按下按鈕顯示已按下
+                button.button_sound.play()
+                pygame.display.flip()
+
+            if PaperClicked:
+                button.ButtonPaperClick()
+                button.button_sound.play()
+                pygame.display.flip()
+
+            if ScissorClicked:
+                button.ButtonScissorClick()
+                button.button_sound.play()
+                pygame.display.flip()
+
+
+        """
+        if Pc.recvdata != None:
+            player1.state = Pc.recvdata["State"]
+        """
+
+        player1.Chiose()
 
 
         pygame.display.flip()

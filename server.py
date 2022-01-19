@@ -1,32 +1,25 @@
 from ast import Pass
 import asyncio, random, socket, json, time, threading
 
-Clientlist = []
-Statelist = ["Rock", "Paper", "Scissors"]
-Room = {"State":"Result",
-        "player1":None, "player2":None,
-        "P1State":None, "P2State":None }
+Randomlist = ["Rock", "Paper", "Scissors"]
+Room = [{"Type":"Result", "Player":None, "Push":None, "Gamestage":None, "transport":None},
+        {"Type":"Result", "Player":None, "Push":None, "Gamestage":None, "transport":None}]
 
 class GameServer(asyncio.Protocol):
     def __init__(self):
-        self.Player = {"address":None, "transport":None}
-        self.callback = {}
+        self.callback = {"Stage":"None", "P2Stage": "None"}
 
     def connection_made(self, transport):
         self.transport = transport
         self.address = transport.get_extra_info('peername')
         self.data = b''
-        
-        self.Player["address"] = self.address
-        self.Player["transport"] = self.transport
-        Clientlist.append(self.Player)
 
-        if Room["player1"] and Room["player2"] != None:
-            self.transport.write(b'{"State":Roomfull}')
-        if Room["player1"] == None:
-            Room["player1"] = self.address
+        if Room[0]["Player"] and Room[1]["Player"] != None:
+            self.transport.write(b'{"Stage":Roomfull}')
+        if Room[0]["Player"] == None:
+            Room[0]["Player"], Room[0]["transport"] = self.address, self.transport
         else:
-            Room["player2"] = self.address
+            Room[1]["Player"], Room[1]["transport"] = self.address, self.transport
 
         print('Accepted connection from {}'.format(self.address))
 
@@ -35,27 +28,49 @@ class GameServer(asyncio.Protocol):
         data = data.decode("utf-8")
         data = json.loads(data)
 
-        if data["Role"] == "Client":
+        print(data, self.address)
+        print(self.callback, self.address)
 
-            if data["State"] == "Waitingpunch":
-                self.callback["State"] = random.choice(Statelist)
+        if Room[0]["Player"] or Room[1]["Player"] == None:
+            self.callback["Stage"] = "WaitP2"
+            self.transport.write(json.dumps(self.callback).encode("utf-8"))
+            
+        if data["GameStage"] == "WaitP2":
+            for i in Room:
+                if i["Player"] != self.address and i["Gamestage"] != None:
+                    self.callback["P2Stage"] = "P2WaitPunch"
+            if Room[0]["Player"] and Room[1]["Player"] != None:
+                self.callback["Stage"] = "P2Join"
                 self.transport.write(json.dumps(self.callback).encode("utf-8"))
-                
-            if data["State"] != "Waitingpunch":
-                if Room["player1"] == self.address:
-                    Room["P1State"] = data["State"]
-                if Room["player2"] == self.address:
-                    Room["P2State"] = data["State"]       
+            else:
+                self.callback["Stage"] = "WaitP2"
+                self.transport.write(json.dumps(self.callback).encode("utf-8"))
+        if data["GameStage"] == "WaitPunch":
+            for i in Room:
+                if i["Player"] == self.address:
+                    i["Gamestage"] = "WaitPunch"
+            self.callback["Stage"] = "WaitPunch"
+            self.transport.write(json.dumps(self.callback).encode("utf-8"))
+        if data["GameStage"] == "Rock" or "Paper" or "Scissors":
+            self.transport.write(json.dumps(self.callback).encode("utf-8"))
+            for i in Room:
+                if i["Player"] == self.address:
+                    i["Push"] = data["GameStage"]
+
+                   
 
     def connection_lost(self, exc):
         if exc:
             print('Client {} error: {}'.format(self.address, exc))
 
-            Clientlist.remove({"transport":self.transport, "address":self.address})
-            if Room["player1"] == self.address :
-                Room["player1"] = None
+            if Room[0]["Player"] == self.address :
+                for key in Room[0]:
+                    Room[0][key] = None
+                Room[1]["Gamestage"] = None
             else:
-                Room["player2"] = None
+                for key in Room[1]:
+                    Room[1][key] = None
+                Room[0]["Gamestage"] = None
 
         elif self.data:
             print('Client {} sent {} but then closed'
@@ -84,20 +99,10 @@ def GetPort():
 
 def Channel():
     while True:
-        time.sleep(1)
-        if Room["P1State"] != None and Room["P2State"] != None:
-            print("Channel")
-            for client in Clientlist:
-                client["transport"].write(json.dumps(Room).encode("utf-8"))
-            Room["P1State"] = None
-            Room["P2State"] = None
-
-        """
-        if Clientlist:
-            for client in Clientlist:
-                print("In channel : ", client["address"])
-                client["transport"].write(b'{"Datatype":"Channel", }')
-        """
+        if Room[0]["Player"] or Room[1]["Player"] != None:
+            if Room[0]["Player"] == None:
+                Room[1]["transport"]
+                
 
 
 if __name__ == '__main__':

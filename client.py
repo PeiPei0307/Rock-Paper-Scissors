@@ -4,8 +4,8 @@ class Client:
     def __init__(self, address, port):
         self.address = address
         self.port = port
-        self.recvdata = None
-        self.data = {"Role":"Client", "State":"Waitingpunch"}
+        self.recvdata = {"Stage":"WaitP2", "P2Stage": "None"}
+        self.data = {"Role":"Client", "GameStage":"WaitP2"}
     
     def connect(self, cause_error=False):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,21 +17,15 @@ class Client:
         recv.start()
 
         while True:
-            time.sleep(0.1)
+            time.sleep(1)
             data = json.dumps(self.data)
-            if self.data["State"] == "Waitingpunch":
-                sock.sendall(data.encode('utf-8'))
-            else:
-                sock.sendall(data.encode('utf-8'))
+            sock.sendall(data.encode('utf-8'))
 
     def recv_data(self, sock):
         while True:
             self.recvdata = self.recv_until(sock, b'}')
             self.recvdata = json.loads(self.recvdata)
-            if self.recvdata["State"] != "Result":
-                pass
-            else:
-                self.control = False
+            print(self.recvdata)
 
     def recv_until(self, sock, suffix):
         message = sock.recv(4096)
