@@ -1,13 +1,15 @@
-import argparse, socket, time, threading, json
+import socket, time, threading, json
 
 class Client:
-    def __init__(self):
+    def __init__(self, address, port):
+        self.address = address
+        self.port = port
         self.recvdata = None
-        self.control = False
+        self.data = {"Role":"Client", "State":"Waitingpunch"}
     
-    def connect(self, address, cause_error=False):
+    def connect(self, cause_error=False):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(address)
+        sock.connect((self.address, self.port,))
         if cause_error:
             return
 
@@ -19,16 +21,17 @@ class Client:
 
         while True:
             time.sleep(1)
-            if self.control == False:
-                sock.sendall(b'''{"Role":"Client", "State":"Waitingpunch"}''')
+            data = json.dumps(self.data)
+            if self.data["State"] == "Waitingpunch":
+                sock.sendall(data.encode('utf-8'))
             else:
-                sock.sendall(b'''{"Role":"Client", "State":"Rock"}''')
+                sock.sendall(data.encode('utf-8'))
 
     def recv_data(self, sock):
         while True:
             self.recvdata = self.recv_until(sock, b'}')
             data = json.loads(self.recvdata)
-            if data["Stage"] != "Result":
+            if data["State"] != "Result":
                 pass
             else:
                 self.control = False
@@ -50,16 +53,3 @@ class Client:
                 raise IOError('received {!r} then socket closed'.format(message))
             message += data
         return message.decode("utf-8")
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Example client')
-    parser.add_argument('host', help='IP or hostname')
-    parser.add_argument('-e', action='store_true', help='cause an error')
-    parser.add_argument('-p', metavar='port', type=int, default=1060,
-                        help='TCP port (default 1060)')
-    args = parser.parse_args()
-
-    client = Client()
-
-    address = (args.host, args.p)
-    client.connect(address, args.e)

@@ -1,7 +1,6 @@
 import os, pygame, socket, threading, random
 from pygame.locals import QUIT
 from game import RPSgame
-from server import Server
 from client import Client
 
 quit = False
@@ -123,6 +122,10 @@ if __name__ == '__main__':
     palyer1 = Player1()
     palyer2 = Player2() 
     button = Button()
+
+    Pc = Client("127.0.0.1", 1060)
+    connect = threading.Thread(target = Pc.connect)
+    connect.start()
 
     done = True
     while done:

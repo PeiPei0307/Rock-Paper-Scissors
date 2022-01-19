@@ -2,10 +2,10 @@ from ast import Pass
 import asyncio, random, socket, json, time, threading
 
 Clientlist = []
-Stagelist = ["Rock", "Paper", "Scissors"]
-Room = {"Stage":"Result",
+Statelist = ["Rock", "Paper", "Scissors"]
+Room = {"State":"Result",
         "player1":None, "player2":None,
-        "P1Stage":None, "P2Stage":None }
+        "P1State":None, "P2State":None }
 
 class GameServer(asyncio.Protocol):
     def __init__(self):
@@ -22,7 +22,7 @@ class GameServer(asyncio.Protocol):
         Clientlist.append(self.Player)
 
         if Room["player1"] and Room["player2"] != None:
-            self.transport.write(b'{"Stage":Roomfull}')
+            self.transport.write(b'{"State":Roomfull}')
         if Room["player1"] == None:
             Room["player1"] = self.address
         else:
@@ -30,29 +30,22 @@ class GameServer(asyncio.Protocol):
 
         print('Accepted connection from {}'.format(self.address))
 
-        """
-        for i in range(2):
-            if Room['player' + str(i + 1)] == None:
-                Room['player' + str(i + 1)] = self.address
-                break
-            else:
-                self.transport.write(b'{"Stage":Roomfull}')
-        """
-
     def data_received(self, data):
 
         data = data.decode("utf-8")
         data = json.loads(data)
 
         if data["Role"] == "Client":
+
             if data["State"] == "Waitingpunch":
-                self.callback["Stage"] = random.choice(Stagelist)
+                self.callback["State"] = random.choice(Statelist)
                 self.transport.write(json.dumps(self.callback).encode("utf-8"))
+                
             if data["State"] != "Waitingpunch":
                 if Room["player1"] == self.address:
-                    Room["P1Stage"] = data["State"]
+                    Room["P1State"] = data["State"]
                 if Room["player2"] == self.address:
-                    Room["P2Stage"] = data["State"]       
+                    Room["P2State"] = data["State"]       
 
     def connection_lost(self, exc):
         if exc:
@@ -92,12 +85,12 @@ def GetPort():
 def Channel():
     while True:
         time.sleep(1)
-        if Room["P1Stage"] != None and Room["P2Stage"] != None:
+        if Room["P1State"] != None and Room["P2State"] != None:
             print("Channel")
             for client in Clientlist:
                 client["transport"].write(json.dumps(Room).encode("utf-8"))
-            Room["P1Stage"] = None
-            Room["P2Stage"] = None
+            Room["P1State"] = None
+            Room["P2State"] = None
 
         """
         if Clientlist:
