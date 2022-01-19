@@ -28,11 +28,12 @@ class BG():
 class Player1(BG):
     def __init__(self):
         super().__init__()
+        self.state = None
         self.player1_ken = pygame.transform.flip(self.chiose_ken, True, False)
         self.player1_pon = pygame.transform.flip(self.chiose_pon, True, False)
         self.player1_jan = pygame.transform.flip(self.chiose_jan, True, False)
         self.x = 300
-        self.y = 100
+        self.y = 150
 
     def Rock(self):
         self.screen.blit(self.player1_ken, (self.x, self.y))
@@ -40,6 +41,30 @@ class Player1(BG):
         self.screen.blit(self.player1_pon, (self.x, self.y))
     def Scissor(self):
         self.screen.blit(self.player1_jan, (self.x, self.y))
+
+    def Chiose(self):
+        if self.state == "Rock":
+            self.Rock()
+        if self.state == "Scissors":
+            self.Paper()
+        if self.state == "Paper":
+            self.Scissor()
+        if self.state == None:
+            pass
+
+class Player2(BG):
+    def __init__(self):
+        super().__init__()
+        self.state = None
+        self.x = 650
+        self.y = 150
+
+    def Rock(self):
+        self.screen.blit(self.chiose_ken, (self.x, self.y))
+    def Paper(self):
+        self.screen.blit(self.chiose_pon, (self.x, self.y))
+    def Scissor(self):
+        self.screen.blit(self.chiose_jan, (self.x, self.y))
 
     def unknown(self):
         test = random.randint(1,3)
@@ -73,38 +98,6 @@ class Button(Player1):
     def ButtonScissorClick(self):
         self.scissor_rect = self.screen.blit(self.Button_jan_click, (100, 50))
 
-class Player2(BG):
-    def __init__(self):
-        super().__init__()
-        self.x = 650
-        self.y = 100
-
-    def Rock(self):
-        self.screen.blit(self.chiose_ken, (self.x, self.y))
-    def Paper(self):
-        self.screen.blit(self.chiose_pon, (self.x, self.y))
-    def Scissor(self):
-        self.screen.blit(self.chiose_jan, (self.x, self.y))
-
-    def unknown(self):
-        test = random.randint(1,3)
-        if test == 1:
-            self.Rock()
-        if test == 2:
-            self.Paper()
-        if test == 3:
-            self.Scissor()
-
-
-
-"""
-class Player1:
-    def __init__(self):
-        threading.Thread.__init__(self)
-        self.host = '127.0.0.1'
-        self.port = 5000
-"""
-
 if __name__ == '__main__': 
     pygame.init()
     pygame.mixer.init()
@@ -119,13 +112,22 @@ if __name__ == '__main__':
     PaperClicked = False 
     ScissorClicked = False#判斷按鈕是否被按下，預設為否
 
-    palyer1 = Player1()
-    palyer2 = Player2() 
+    player1 = Player1()
+    player2 = Player2() 
     button = Button()
 
     Pc = Client("127.0.0.1", 1060)
     connect = threading.Thread(target = Pc.connect)
     connect.start()
+
+    """
+    if callback["State"] == "Rock":
+        palyer1.chiose_ken()
+    if callback["State"] == "Scissors":
+        palyer1.chiose_jan()
+    if callback["State"] == "Paper":
+        palyer1.chiose_pon()
+    """
 
     done = True
     while done:
@@ -140,8 +142,10 @@ if __name__ == '__main__':
 
         background.background()
 
-        palyer1.unknown()
-        palyer2.unknown()
+        if Pc.recvdata != None:
+            player1.state = Pc.recvdata["State"]
+
+        player1.Chiose()
 
         button.ButtonRock() #buttons rect
         RockRect = button.rock_rect
@@ -173,4 +177,4 @@ if __name__ == '__main__':
 
 
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(15)

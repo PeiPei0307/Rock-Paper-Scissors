@@ -16,11 +16,8 @@ class Client:
         recv = threading.Thread(target = self.recv_data, args = (sock,))
         recv.start()
 
-        printdata = threading.Thread(target = self.printdata)
-        printdata.start()
-
         while True:
-            time.sleep(1)
+            time.sleep(0.1)
             data = json.dumps(self.data)
             if self.data["State"] == "Waitingpunch":
                 sock.sendall(data.encode('utf-8'))
@@ -30,18 +27,11 @@ class Client:
     def recv_data(self, sock):
         while True:
             self.recvdata = self.recv_until(sock, b'}')
-            data = json.loads(self.recvdata)
-            if data["State"] != "Result":
+            self.recvdata = json.loads(self.recvdata)
+            if self.recvdata["State"] != "Result":
                 pass
             else:
                 self.control = False
-
-
-    def printdata(self):
-        while True:
-            if self.recvdata:
-                print('ServerRecv : ', self.recvdata)
-                self.recvdata = None
 
     def recv_until(self, sock, suffix):
         message = sock.recv(4096)
