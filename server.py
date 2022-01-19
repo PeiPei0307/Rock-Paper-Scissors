@@ -32,9 +32,8 @@ class GameServer(asyncio.Protocol):
         print(self.callback, self.address)
 
         if Room[0]["Player"] or Room[1]["Player"] == None:
-            self.callback["Stage"] = "WaitP2"
-            self.transport.write(json.dumps(self.callback).encode("utf-8"))
-            
+            self.callback["P2Stage"] = None
+
         if data["GameStage"] == "WaitP2":
             for i in Room:
                 if i["Player"] != self.address and i["Gamestage"] != None:
@@ -45,12 +44,14 @@ class GameServer(asyncio.Protocol):
             else:
                 self.callback["Stage"] = "WaitP2"
                 self.transport.write(json.dumps(self.callback).encode("utf-8"))
+
         if data["GameStage"] == "WaitPunch":
             for i in Room:
-                if i["Player"] == self.address:
-                    i["Gamestage"] = "WaitPunch"
+                if i["Player"] != self.address and i["Gamestage"] == None:
+                    self.callback["P2Stage"] = "WatingP2"
             self.callback["Stage"] = "WaitPunch"
             self.transport.write(json.dumps(self.callback).encode("utf-8"))
+            
         if data["GameStage"] == "Rock" or "Paper" or "Scissors":
             self.transport.write(json.dumps(self.callback).encode("utf-8"))
             for i in Room:
@@ -70,7 +71,7 @@ class GameServer(asyncio.Protocol):
             else:
                 for key in Room[1]:
                     Room[1][key] = None
-                Room[0]["Gamestage"] = None
+                    Room[0]["Gamestage"] = None
 
         elif self.data:
             print('Client {} sent {} but then closed'

@@ -222,7 +222,7 @@ if __name__ == '__main__':
                 pygame.display.flip()
                 pygame.time.delay(150)
                 if Pc.recvdata["Stage"] == "P2Join":
-                        Pc.data["GameStage"] = "WaitPunch"
+                        Pc.data["GameStage"] = "WaitPunch" # Go to next stage
 
             if RockClicked:
                 button.ButtonRockClick()#如果按下按鈕顯示已按下
