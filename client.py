@@ -4,8 +4,8 @@ class Client:
     def __init__(self, address, port):
         self.address = address
         self.port = port
-        self.recvdata = {"Stage":"WaitP2", "P2Stage": "None"}
-        self.data = {"Role":"Client", "GameStage":"WaitP2"}
+        self.recvdata = {"Role":None, "Stage":"None", "P2Stage":None, "P1":None, "P2":None, "Punch":"None", "Ans":None}
+        self.data = {"Role":"Client", "Stage":"Connect", "Punch":None}
     
     def connect(self, cause_error=False):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -13,19 +13,28 @@ class Client:
         if cause_error:
             return
 
+        printdata = threading.Thread(target = self.printdata)
+        printdata.start()
+
         recv = threading.Thread(target = self.recv_data, args = (sock,))
         recv.start()
 
         while True:
-            time.sleep(1)
-            data = json.dumps(self.data)
-            sock.sendall(data.encode('utf-8'))
+            if self.data["Stage"] != None:
+                data = json.dumps(self.data)
+                sock.sendall(data.encode('utf-8'))
+                self.data["Stage"] = None
 
     def recv_data(self, sock):
         while True:
             self.recvdata = self.recv_until(sock, b'}')
             self.recvdata = json.loads(self.recvdata)
-            print(self.recvdata)
+
+    def printdata(self):
+        while True:
+            time.sleep(2)
+            if self.recvdata:
+                print('ServerRecv : ', self.recvdata)
 
     def recv_until(self, sock, suffix):
         message = sock.recv(4096)

@@ -1,13 +1,14 @@
 from ast import Pass
 import asyncio, random, socket, json, time, threading
+import game
 
 Randomlist = ["Rock", "Paper", "Scissors"]
-Room = [{"Type":"Result", "Player":None, "Push":None, "Gamestage":None, "transport":None},
-        {"Type":"Result", "Player":None, "Push":None, "Gamestage":None, "transport":None}]
+Room = [{"Player":None, "Punch":None, "Gamestage":None, "transport":None},
+        {"Player":None, "Punch":None, "Gamestage":None, "transport":None}]
 
 class GameServer(asyncio.Protocol):
     def __init__(self):
-        self.callback = {"Stage":"None", "P2Stage": "None"}
+        self.callback = {"Role":None, "Stage":"None", "P2Stage": "None", "Punch":"", "Ans":None}
 
     def connection_made(self, transport):
         self.transport = transport
@@ -16,49 +17,60 @@ class GameServer(asyncio.Protocol):
 
         if Room[0]["Player"] and Room[1]["Player"] != None:
             self.transport.write(b'{"Stage":Roomfull}')
+            
         if Room[0]["Player"] == None:
-            Room[0]["Player"], Room[0]["transport"] = self.address, self.transport
+            self.callback["Role"] = 0
+            Room[0]["Player"] = self.address
+            Room[0]["transport"] = self.transport
         else:
-            Room[1]["Player"], Room[1]["transport"] = self.address, self.transport
+            self.callback["Role"] = 1
+            Room[1]["Player"] = self.address
+            Room[1]["transport"] = self.transport
 
         print('Accepted connection from {}'.format(self.address))
 
     def data_received(self, data):
 
         data = data.decode("utf-8")
-        data = json.loads(data)
+        self.data = json.loads(data)
 
-        print(data, self.address)
-        print(self.callback, self.address)
+        #print(data, self.address)
+        #print(self.callback, self.address)
+        print("Room", Room)
 
-        if Room[0]["Player"] or Room[1]["Player"] == None:
-            self.callback["P2Stage"] = None
+        if self.data["Stage"] == "Again":
+            Room[self.callback["Role"]]["Punch"] = None
+            Room[self.callback["Role"]]["Ans"] = None
+            Room[self.callback["Role"]]["P2Stage"] = None
+            Room[self.callback["Role"]]["Stage"] = None
 
-        if data["GameStage"] == "WaitP2":
-            for i in Room:
-                if i["Player"] != self.address and i["Gamestage"] != None:
-                    self.callback["P2Stage"] = "P2WaitPunch"
-            if Room[0]["Player"] and Room[1]["Player"] != None:
-                self.callback["Stage"] = "P2Join"
-                self.transport.write(json.dumps(self.callback).encode("utf-8"))
-            else:
-                self.callback["Stage"] = "WaitP2"
-                self.transport.write(json.dumps(self.callback).encode("utf-8"))
+        if self.data["Punch"] != None:
+            Room[self.callback["Role"]]["Punch"] = self.data["Punch"]
+            self.callback["Punch"] = self.data["Punch"]
+            return
 
-        if data["GameStage"] == "WaitPunch":
-            for i in Room:
-                if i["Player"] != self.address and i["Gamestage"] == None:
-                    self.callback["P2Stage"] = "WatingP2"
-            self.callback["Stage"] = "WaitPunch"
+        if Room[0]["Player"] == None or Room[1]["Player"] == None:
+            self.callback["Stage"] = "WaitP2"
+            Room[self.callback["Role"]]["Gamestage"] = "WaitP2"
             self.transport.write(json.dumps(self.callback).encode("utf-8"))
-            
-        if data["GameStage"] == "Rock" or "Paper" or "Scissors":
-            self.transport.write(json.dumps(self.callback).encode("utf-8"))
-            for i in Room:
-                if i["Player"] == self.address:
-                    i["Push"] = data["GameStage"]
 
-                   
+        if Room[0]["Player"] != None and Room[1]["Player"] != None:
+            for i in Room:
+                if i["Player"] != self.address:
+                    if i["Gamestage"] == "WaitP2":
+                        Room[self.callback["Role"]]["Gamestage"] = "WaitJoinP2"
+                        self.callback["Stage"] = "WaitP2_button"
+                        self.transport.write(json.dumps(self.callback).encode("utf-8"))
+                    else:
+                        if Room[self.callback["Role"]]["Gamestage"] != "WaitJoinP2":
+                            for i in Room:
+                                if i["Player"] != self.address:
+                                    i["Gamestage"] = "JoinP2"
+                                    send = {"Role": 1, "Stage": "JoinP2", "P2Stage": "JoinP2", "Punch":"None", "Ans":None}
+                                    i["transport"].write(json.dumps(send).encode("utf-8"))
+                        self.callback["Stage"] = "JoinP2"
+                        self.callback["P2Stage"] = "JoinP2"
+                        self.transport.write(json.dumps(self.callback).encode("utf-8"))
 
     def connection_lost(self, exc):
         if exc:
@@ -67,11 +79,9 @@ class GameServer(asyncio.Protocol):
             if Room[0]["Player"] == self.address :
                 for key in Room[0]:
                     Room[0][key] = None
-                Room[1]["Gamestage"] = None
             else:
                 for key in Room[1]:
                     Room[1][key] = None
-                    Room[0]["Gamestage"] = None
 
         elif self.data:
             print('Client {} sent {} but then closed'
@@ -100,9 +110,18 @@ def GetPort():
 
 def Channel():
     while True:
-        if Room[0]["Player"] or Room[1]["Player"] != None:
-            if Room[0]["Player"] == None:
-                Room[1]["transport"]
+        if Room[0]["Punch"] != None and Room[1]["Punch"] != None:
+            rulest = game.RPSgame(Room[0]["Punch"], Room[1]["Punch"])
+            P1back = {"Role":None, "Stage":"Rulest", "P2Stage": Room[1]["Punch"], "Punch":Room[0]["Punch"], "Ans":rulest["Player1"]}
+            P2back = {"Role":None, "Stage":"Rulest", "P2Stage": Room[0]["Punch"], "Punch":Room[1]["Punch"], "Ans":rulest["Player2"]}
+            Room[0]["transport"].write(json.dumps(P1back).encode("utf-8"))
+            Room[1]["transport"].write(json.dumps(P2back).encode("utf-8"))
+            Room[0]["Punch"] = None
+            Room[1]["Punch"] = None
+            Room[0]["Ans"] = None
+            Room[1]["Ans"] = None
+
+
                 
 
 

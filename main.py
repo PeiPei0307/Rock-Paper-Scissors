@@ -26,13 +26,18 @@ class BG():
     def background(self):
         self.screen.blit(self.bg, (0, 0))
 
-    def WaitingP2(self):
+    def WaitP2(self):
         if self.period > 3:
             self.period = 0
         text = 'Waiting player2' + '.' * self.period
         self.period += 1
         textsurface = self.font.render(text, False, (240, 85, 85))
         screen.blit(textsurface,(390, 25))
+
+    def DoConnect(self):
+        text = 'Connect'
+        textsurface = self.sfont.render(text, False, (255, 0, 0))
+        screen.blit(textsurface,(980, 150))
 
     def P2Join(self):
         if self.period > 3:
@@ -42,23 +47,15 @@ class BG():
         textsurface = self.font.render(text, False, (240, 85, 85))
         screen.blit(textsurface,(390, 25))
 
-    def Startgame(self):
-        text = 'Start Game'
-        if pygame.time.get_ticks() % 30 == 0:
-            textsurface = self.sfont.render(text, False, (255, 128, 114))
-            screen.blit(textsurface,(960, 150))
-        else:
-            textsurface = self.sfont.render(text, False, (255, 0, 0))
-            screen.blit(textsurface,(960, 150))
+    def DoCheck(self):
+        text = 'Waiting P2 Check'
+        textsurface = self.sfont.render(text, False, (255, 0, 0))
+        screen.blit(textsurface,(920, 150))
 
-    def P2Startgame(self):
-        text = 'P2 Ready'
-        if pygame.time.get_ticks() % 30 == 0:
-            textsurface = self.sfont.render(text, False, (255, 128, 114))
-            screen.blit(textsurface,(975, 150))
-        else:
-            textsurface = self.sfont.render(text, False, (255, 0, 0))
-            screen.blit(textsurface,(975, 150))
+    def DoGame(self):
+        text = 'Start Game'
+        textsurface = self.sfont.render(text, False, (255, 0, 0))
+        screen.blit(textsurface,(960, 150))
 
     def WaitingPuch(self):
         if self.period > 3:
@@ -67,6 +64,34 @@ class BG():
         self.period += 1
         textsurface = self.font.render(text, False, (240, 85, 85))
         screen.blit(textsurface,(500, 25))
+
+    def Ready(self):
+        text = 'Ready'
+        textsurface = self.sfont.render(text, False, (255, 0, 0))
+        screen.blit(textsurface,(985, 150))
+
+    def win(self):
+        text = "Win!!!"
+        self.period += 1
+        textsurface = self.font.render(text, False, (240, 85, 85))
+        screen.blit(textsurface,(500, 25))
+
+    def loss(self):
+        text = "Lose..."
+        self.period += 1
+        textsurface = self.font.render(text, False, (240, 85, 85))
+        screen.blit(textsurface,(500, 25))
+
+    def darw(self):
+        text = "Darw"
+        self.period += 1
+        textsurface = self.font.render(text, False, (240, 85, 85))
+        screen.blit(textsurface,(500, 25))
+
+    def again(self):
+        text = 'Again'
+        textsurface = self.sfont.render(text, False, (255, 0, 0))
+        screen.blit(textsurface,(985, 150))
 
 class Player1(BG):
     def __init__(self):
@@ -93,16 +118,16 @@ class Player1(BG):
             self.Paper()
         if test == 3:
             self.Scissor()
-        """
-        if self.state == "Rock":
+
+    def chiose(self, i):
+        if i == "Rock":
             self.Rock()
-        if self.state == "Scissors":
+        if i == "Paper":
             self.Paper()
-        if self.state == "Paper":
+        if i == "Scissors":
             self.Scissor()
-        if self.state == None:
+        if i == None:
             pass
-        """
 
 class Player2(BG):
     def __init__(self):
@@ -126,6 +151,16 @@ class Player2(BG):
             self.Paper()
         if test == 3:
             self.Scissor()
+
+    def chiose(self, i):
+        if i == "Rock":
+            self.Rock()
+        if i == "Paper":
+            self.Paper()
+        if i == "Scissors":
+            self.Scissor()
+        if i == None:
+            pass
 
 class Button(Player1):
     def __init__(self):
@@ -180,6 +215,8 @@ if __name__ == '__main__':
     connect.start()
 
     done = True
+    Punch = "None"
+
     while done:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -193,97 +230,113 @@ if __name__ == '__main__':
 
         background.background()
 
-        print(Pc.recvdata)
+        #print(Pc.recvdata["Stage"])
 
-        if Pc.recvdata["Stage"] == "WaitP2" or Pc.recvdata["Stage"] == "P2Join":
-
+        if Pc.recvdata["Stage"] != None:
             if Pc.recvdata["Stage"] == "WaitP2":
-                background.WaitingP2()
-
-            if Pc.recvdata["Stage"] == "P2Join": #waiting start
-                background.P2Join()
-                if Pc.recvdata["P2Stage"] == "P2WaitPunch":
-                    background.P2Startgame()
+                background.WaitP2()
+                background.DoConnect()
+            if Pc.recvdata["Stage"] == "JoinP2" and Pc.recvdata["P2Stage"] != "JoinP2" or Pc.recvdata["Stage"] == "WaitP2_button":
+                if Pc.recvdata["Stage"] == "WaitP2_button":
+                    background.P2Join()
+                    background.DoCheck()
                 else:
-                    background.Startgame()
+                    background.P2Join()
+                    background.DoGame()
+            if Pc.recvdata["Stage"] == "JoinP2" and Pc.recvdata["P2Stage"] == "JoinP2":
+                background.WaitingPuch()
+                background.Ready()
 
-            button.ButtonRock() #buttons rect
-            RockRect = button.rock_rect
-            button.ButtonPaper()
-            PaperRect = button.paper_rect
-            button.ButtonScissor()
-            ScissorRect = button.scissor_rect
-            button.ButtonStart()
-            StartRect = button.start_rect
-
-            if StartClicked:
-                button.ButtonStartClick()#如果按下按鈕顯示已按下
-                button.button_sound.play()
-                pygame.display.flip()
-                pygame.time.delay(150)
-                if Pc.recvdata["Stage"] == "P2Join":
-                        Pc.data["GameStage"] = "WaitPunch" # Go to next stage
-
-            if RockClicked:
-                button.ButtonRockClick()#如果按下按鈕顯示已按下
-                button.button_sound.play()
-                pygame.display.flip()
-                pygame.time.delay(150)
-
-            if PaperClicked:
-                button.ButtonPaperClick()
-                button.button_sound.play()
-                pygame.display.flip()
-                pygame.time.delay(150)
-
-            if ScissorClicked:
-                button.ButtonScissorClick()
-                button.button_sound.play()
-                pygame.display.flip()
-                pygame.time.delay(150)
+                #print(Punch)
                 
-            PaperClicked = False
-            ScissorClicked = False
-            RockClicked = False#重新將按鈕設定為未按下
-            StartClicked = False#重新將按鈕設定為未按下
+                if Punch == "None":
+                    player1.unknown()
+                player2.unknown()
+
+                if Punch == "Rock":
+                    player1.Rock()
+                if Punch == "Scissors":
+                    player1.Scissor()
+                if Punch == "Paper":
+                    player1.Paper()
+
+            if Pc.recvdata['Stage'] == "Rulest":
+                background.again()
+
+                if Pc.recvdata['Ans'] == 'win':
+                    background.win()
+                if Pc.recvdata['Ans'] == 'loss':
+                    background.loss()
+                if Pc.recvdata['Ans'] == 'darw':
+                    background.darw()
+
+                player1.chiose(Pc.recvdata['Punch'])
+                player2.chiose(Pc.recvdata['P2Stage'])
+                    
 
 
-        if Pc.recvdata["Stage"] == "WaitPunch": #waiting punch
-            background.WaitingPuch()
 
-            button.ButtonRock() #buttons rect
-            button.ButtonPaper()
-            button.ButtonScissor()
-            button.ButtonStart()
+        button.ButtonRock() #buttons rect
+        RockRect = button.rock_rect
+        button.ButtonPaper()
+        PaperRect = button.paper_rect
+        button.ButtonScissor()
+        ScissorRect = button.scissor_rect
+        button.ButtonStart()
+        StartRect = button.start_rect
 
-            if StartClicked:
-                button.ButtonStartClick()#如果按下按鈕顯示已按下
-                button.button_sound.play()
-                pygame.display.flip()
-                pygame.time.delay(150)
+        if StartClicked:
+            button.ButtonStartClick()#如果按下按鈕顯示已按下
+            button.button_sound.play()
+            pygame.display.flip()
+            pygame.time.delay(150)
+            if Pc.recvdata["Stage"] == "WaitP2":
+                Pc.data["Stage"] = "Connect" # Go to next stage
+            if Pc.recvdata["Stage"] == "JoinP2" and Pc.recvdata["Stage"] != "WaitP2_button":
+                Pc.data["Stage"] = "Start" # Go to next stage
+            if Pc.recvdata['Stage'] == "Rulest":
+                Pc.recvdata['Punch'] = ''
+                Pc.recvdata['Ans'] = None
+                Pc.recvdata['P2Stage'] = None
+                Pc.recvdata['Stage'] = "WaitP2"
+                Pc.data = {"Role":"Client", "Stage":"Connect", "Punch":None}
 
-            if RockClicked:
-                button.ButtonRockClick()#如果按下按鈕顯示已按下
-                button.button_sound.play()
-                pygame.display.flip()
-                pygame.time.delay(150)
 
-            if PaperClicked:
-                button.ButtonPaperClick()
-                button.button_sound.play()
-                pygame.display.flip()
-                pygame.time.delay(150)
+        if RockClicked:
+            button.ButtonRockClick()#如果按下按鈕顯示已按下
+            button.button_sound.play()
+            pygame.display.flip()
+            pygame.time.delay(150)
+            if Pc.recvdata["Stage"] == "JoinP2" and Pc.recvdata["P2Stage"] == "JoinP2":
+                Pc.data["Stage"] = "Punch"
+                Punch = "Rock"
+                Pc.data["Punch"] = Punch
 
-            if ScissorClicked:
-                button.ButtonScissorClick()
-                button.button_sound.play()
-                pygame.display.flip()
-                pygame.time.delay(150)
-                
-            PaperClicked = False
-            ScissorClicked = False
-            RockClicked = False#重新將按鈕設定為未按下
-            StartClicked = False#重新將按鈕設定為未按下
+        if PaperClicked:
+            button.ButtonPaperClick()
+            button.button_sound.play()
+            pygame.display.flip()
+            pygame.time.delay(150)
+            if Pc.recvdata["Stage"] == "JoinP2" and Pc.recvdata["P2Stage"] == "JoinP2":
+                Pc.data["Stage"] = "Punch"
+                Punch = "Paper"
+                Pc.data["Punch"] = Punch
+
+        if ScissorClicked:
+            button.ButtonScissorClick()
+            button.button_sound.play()
+            pygame.display.flip()
+            pygame.time.delay(150)
+            if Pc.recvdata["Stage"] == "JoinP2" and Pc.recvdata["P2Stage"] == "JoinP2":
+                Pc.data["Stage"] = "Punch"
+                Punch = "Scissors"
+                Pc.data["Punch"] = Punch
+
+            
+        PaperClicked = False
+        ScissorClicked = False
+        RockClicked = False#重新將按鈕設定為未按下
+        StartClicked = False#重新將按鈕設定為未按下
 
         pygame.display.flip()
         clock.tick(30)

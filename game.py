@@ -1,43 +1,46 @@
 
 
-def RPSgame():
-    ServerPlayer = int(input("Input :"))
-    ClientPlayer = int(input("Input :"))
+def RPSgame(Play1, Play2):
+    Player1 = Play1
+    Player2 = Play2
 
-    #Check draw
-    if ServerPlayer == ClientPlayer:
+    #print(Player1)
+    #print(Player2)
+
+    #Check
+    if Player1 == Player2:
         print("Draw")
-        return {'ServerPlayer': 'darw', 'ClientPlayer': 'darw'}
+        return {'Player1': 'darw', 'Player2': 'darw'}
 
-    elif ServerPlayer == 0 and ClientPlayer == 1:
-        print("ServerPlayer input : Scissors") 
-        print("ServerPlayer input : Rock") 
-        return {'ServerPlayer': 'loss', 'ClientPlayer': 'win'}
+    elif Player1 == "Scissors" and Player2 == "Rock":
+        print("Player1 input : Scissors") 
+        print("Player2 input : Rock") 
+        return {'Player1': 'loss', 'Player2': 'win'}
 
-    elif ServerPlayer == 0 and ClientPlayer == 2:
-        print("ServerPlayer input : Scissors") 
-        print("ClientPlayer input : Paper") 
-        return {'ServerPlayer': 'win', 'ClientPlayer': 'loss'}
+    elif Player1 == "Scissors" and Player2 == "Paper":
+        print("Player1 input : Scissors") 
+        print("Player2 input : Paper") 
+        return {'Player1': 'win', 'Player2': 'loss'}
 
-    elif ServerPlayer == 1 and ClientPlayer == 0:
-        print("ServerPlayer input : Rock") 
-        print("ClientPlayer input : Scissors") 
-        return {'ServerPlayer': 'win', 'ClientPlayer': 'loss'}
+    elif Player1 == "Rock" and Player2 == "Scissors":
+        print("Player1 input : Rock") 
+        print("Player2 input : Scissors") 
+        return {'Player1': 'win', 'Player2': 'loss'}
 
-    elif ServerPlayer == 1 and ClientPlayer == 2:
-        print("ServerPlayer input : Rock") 
-        print("ClientPlayer input : Paper") 
-        return {'ServerPlayer': 'loss', 'ClientPlayer': 'win'}
+    elif Player1 == "Rock" and Player2 == "Paper":
+        print("Player1 input : Rock") 
+        print("Player2 input : Paper") 
+        return {'Player1': 'loss', 'Player2': 'win'}
 
-    elif ServerPlayer == 2 and ClientPlayer == 0:
-        print("ServerPlayer input : Paper") 
-        print("ClientPlayer input : Scissors") 
-        return {'ServerPlayer': 'loss', 'ClientPlayer': 'win'} 
+    elif Player1 == "Paper" and Player2 == "Scissors":
+        print("Player1 input : Paper") 
+        print("Player2 input : Scissors") 
+        return {'Player1': 'loss', 'Player2': 'win'} 
 
-    elif ServerPlayer == 2 and ClientPlayer == 1:
-        print("ServerPlayer input : Paper") 
-        print("ClientPlayer input : Rock") 
-        return {'ServerPlayer': 'win', 'ClientPlayer': 'loss'}
+    elif Player1 == "Paper" and Player2 == "Rock":
+        print("Player1 input : Paper") 
+        print("Player2 input : Rock") 
+        return {'Player1': 'win', 'Player2': 'loss'}
 
     else:
         print("Error!In function game")
