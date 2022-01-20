@@ -198,6 +198,9 @@ if __name__ == '__main__':
     pygame.mixer.music.play(-1)
     clock = pygame.time.Clock()
 
+    address = input("Address :")
+    port = input("Port :")
+
     background = BG()
     screen = background.screen #back scrren control to main
 
@@ -210,7 +213,7 @@ if __name__ == '__main__':
     player2 = Player2() 
     button = Button()
 
-    Pc = Client("127.0.0.1", 1060)
+    Pc = Client(address, port)
     connect = threading.Thread(target = Pc.connect) #Start client do connect
     connect.start()
 
