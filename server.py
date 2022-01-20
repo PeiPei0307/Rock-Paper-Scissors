@@ -1,5 +1,5 @@
 from ast import Pass
-import asyncio, random, socket, json, time, threading
+import asyncio, socket, json, threading
 import game
 
 Randomlist = ["Rock", "Paper", "Scissors"]
@@ -34,9 +34,9 @@ class GameServer(asyncio.Protocol):
         data = data.decode("utf-8")
         self.data = json.loads(data)
 
-        #print(data, self.address)
-        #print(self.callback, self.address)
-        print("Room", Room)
+        print(data, self.address)
+        print(self.callback, self.address)
+        #print("Room", Room)
 
         if self.data["Stage"] == "Again":
             Room[self.callback["Role"]]["Punch"] = None

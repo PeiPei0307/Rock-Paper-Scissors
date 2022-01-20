@@ -13,8 +13,8 @@ class Client:
         if cause_error:
             return
 
-        printdata = threading.Thread(target = self.printdata)
-        printdata.start()
+        #printdata = threading.Thread(target = self.printdata)
+        #printdata.start()
 
         recv = threading.Thread(target = self.recv_data, args = (sock,))
         recv.start()
